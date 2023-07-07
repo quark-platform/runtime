@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsXULAppAPI.h"
-#include "nsXPCOMGlue.h"
+#include "mozilla/Bootstrap.h"
 #include <stdio.h>
 #include <stdlib.h>
 #ifdef XP_WIN
@@ -19,12 +18,12 @@
 #include "nsCOMPtr.h"
 #include "nsMemory.h"
 #include "nsCRTGlue.h"
-#include "nsStringAPI.h"
-#include "nsServiceManagerUtils.h"
+// #include "nsStringAPI.h"
+// #include "nsServiceManagerUtils.h"
 #include "plstr.h"
 #include "prprf.h"
 #include "prenv.h"
-#include "nsINIParser.h"
+// #include "nsINIParser.h" GRE Versioning stuff that needs to be in libxul :(
 
 #ifdef XP_WIN
 #define XRE_DONT_SUPPORT_XPSP2 // See https://bugzil.la/1023941#c32
@@ -46,21 +45,21 @@ using namespace mozilla;
  * @param fmt
  *        printf-style format string followed by arguments.
  */
-static void Output(bool isError, const char *fmt, ... )
+static void Output(bool isError, const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
 
 #if (defined(XP_WIN) && !MOZ_WINCONSOLE)
   wchar_t msg[2048];
-  _vsnwprintf(msg, sizeof(msg)/sizeof(msg[0]), NS_ConvertUTF8toUTF16(fmt).get(), ap);
+  _vsnwprintf(msg, sizeof(msg) / sizeof(msg[0]), NS_ConvertUTF8toUTF16(fmt).get(), ap);
 
   UINT flags = MB_OK;
   if (isError)
     flags |= MB_ICONERROR;
   else
     flags |= MB_ICONINFORMATION;
-    
+
   MessageBoxW(nullptr, msg, L"XULRunner", flags);
 #else
   vfprintf(stderr, fmt, ap);
@@ -72,7 +71,7 @@ static void Output(bool isError, const char *fmt, ... )
 /**
  * Return true if |arg| matches the given argument name.
  */
-static bool IsArg(const char* arg, const char* s)
+static bool IsArg(const char *arg, const char *s)
 {
   if (*arg == '-')
   {
@@ -89,117 +88,81 @@ static bool IsArg(const char* arg, const char* s)
   return false;
 }
 
-static nsresult
-GetGREVersion(const char *argv0,
-              nsACString *aMilestone,
-              nsACString *aVersion)
-{
-  if (aMilestone)
-    aMilestone->AssignLiteral("<Error>");
-  if (aVersion)
-    aVersion->AssignLiteral("<Error>");
+// TODO: Bring back application file parsing
+// static nsresult
+// GetGREVersion(const char *argv0,
+//               nsACString *aMilestone,
+//               nsACString *aVersion)
+// {
+//   if (aMilestone)
+//     aMilestone->AssignLiteral("<Error>");
+//   if (aVersion)
+//     aVersion->AssignLiteral("<Error>");
 
-  nsCOMPtr<nsIFile> iniFile;
-  nsresult rv = BinaryPath::GetFile(argv0, getter_AddRefs(iniFile));
-  if (NS_FAILED(rv))
-    return rv;
+//   nsCOMPtr<nsIFile> iniFile;
+//   nsresult rv = XRE_GetBinaryPath(getter_AddRefs(iniFile));
+//   if (NS_FAILED(rv))
+//     return rv;
 
-  iniFile->SetNativeLeafName(NS_LITERAL_CSTRING("platform.ini"));
+//   iniFile->SetNativeLeafName(nsLiteralCString("platform.ini"));
 
-  nsINIParser parser;
-  rv = parser.Init(iniFile);
-  if (NS_FAILED(rv))
-    return rv;
+//   nsINIParser parser;
+//   rv = parser.Init(iniFile);
+//   if (NS_FAILED(rv))
+//     return rv;
 
-  if (aMilestone) {
-    rv = parser.GetString("Build", "Milestone", *aMilestone);
-    if (NS_FAILED(rv))
-      return rv;
-  }
-  if (aVersion) {
-    rv = parser.GetString("Build", "BuildID", *aVersion);
-    if (NS_FAILED(rv))
-      return rv;
-  }
-  return NS_OK;
-}
-
-/**
- * A helper class which calls NS_LogInit/NS_LogTerm in its scope.
- */
-class ScopedLogging
-{
-public:
-  ScopedLogging() { NS_LogInit(); }
-  ~ScopedLogging() { NS_LogTerm(); }
-};
+//   if (aMilestone)
+//   {
+//     rv = parser.GetString("Build", "Milestone", *aMilestone);
+//     if (NS_FAILED(rv))
+//       return rv;
+//   }
+//   if (aVersion)
+//   {
+//     rv = parser.GetString("Build", "BuildID", *aVersion);
+//     if (NS_FAILED(rv))
+//       return rv;
+//   }
+//   return NS_OK;
+// }
 
 static void Usage(const char *argv0)
 {
-    nsAutoCString milestone;
-    GetGREVersion(argv0, &milestone, nullptr);
+  // nsAutoCString milestone;
+  // GetGREVersion(argv0, &milestone, nullptr);
 
-    // display additional information (XXX make localizable?)
-    Output(false,
-           "Mozilla XULRunner %s\n\n"
-           "Usage: " XULRUNNER_PROGNAME " [OPTIONS]\n"
-           "       " XULRUNNER_PROGNAME " APP-FILE [APP-OPTIONS...]\n"
-           "\n"
-           "OPTIONS\n"
-           "      --app                  specify APP-FILE (optional)\n"
-           "  -h, --help                 show this message\n"
-           "  -v, --version              show version\n"
-           "  --gre-version              print the GRE version string on stdout\n"
-           "\n"
-           "APP-FILE\n"
-           "  Application initialization file.\n"
-           "\n"
-           "APP-OPTIONS\n"
-           "  Application specific options.\n",
-           milestone.get());
+  // display additional information (XXX make localizable?)
+  Output(false,
+         "Mozilla XULRunner %s\n\n"
+         "Usage: " XULRUNNER_PROGNAME " [OPTIONS]\n"
+         "       " XULRUNNER_PROGNAME " APP-FILE [APP-OPTIONS...]\n"
+         "\n"
+         "OPTIONS\n"
+         "      --app                  specify APP-FILE (optional)\n"
+         "  -h, --help                 show this message\n"
+         "  -v, --version              show version\n"
+         "  --gre-version              print the GRE version string on stdout\n"
+         "\n"
+         "APP-FILE\n"
+         "  Application initialization file.\n"
+         "\n"
+         "APP-OPTIONS\n"
+         "  Application specific options.\n",
+         "<TODO: app.ini gecko milestone here>");
 }
 
-XRE_GetFileFromPathType XRE_GetFileFromPath;
-XRE_CreateAppDataType XRE_CreateAppData;
-XRE_FreeAppDataType XRE_FreeAppData;
-XRE_mainType XRE_main;
+Bootstrap::UniquePtr gBootstrap;
 
-static const nsDynamicFunctionLoad kXULFuncs[] = {
-    { "XRE_GetFileFromPath", (NSFuncPtr*) &XRE_GetFileFromPath },
-    { "XRE_CreateAppData", (NSFuncPtr*) &XRE_CreateAppData },
-    { "XRE_FreeAppData", (NSFuncPtr*) &XRE_FreeAppData },
-    { "XRE_main", (NSFuncPtr*) &XRE_main },
-    { nullptr, nullptr }
-};
-
-class AutoAppData
+int main(int argc, char *argv[])
 {
-public:
-  AutoAppData(nsIFile* aINIFile) : mAppData(nullptr) {
-    nsresult rv = XRE_CreateAppData(aINIFile, &mAppData);
-    if (NS_FAILED(rv))
-      mAppData = nullptr;
-  }
-  ~AutoAppData() {
-    if (mAppData)
-      XRE_FreeAppData(mAppData);
-  }
-
-  operator nsXREAppData*() const { return mAppData; }
-  nsXREAppData* operator -> () const { return mAppData; }
-
-private:
-  nsXREAppData* mAppData;
-};
-
-int main(int argc, char* argv[])
-{
-  char exePath[MAXPATHLEN];
-  nsresult rv = mozilla::BinaryPath::Get(argv[0], exePath);
-  if (NS_FAILED(rv)) {
+  UniqueFreePtr<char> exePathPtr = BinaryPath::Get();
+  if (!exePathPtr)
+  {
     Output(true, "Couldn't calculate the application directory.\n");
     return 255;
   }
+
+  char *exePath = exePathPtr.get();
 
   char *lastSlash = strrchr(exePath, XPCOM_FILE_PATH_SEPARATOR[0]);
   if (!lastSlash || (size_t(lastSlash - exePath) > MAXPATHLEN - sizeof(XPCOM_DLL) - 1))
@@ -207,13 +170,14 @@ int main(int argc, char* argv[])
 
   strcpy(++lastSlash, XPCOM_DLL);
 
-  rv = XPCOMGlueStartup(exePath);
-  if (NS_FAILED(rv)) {
+  auto bootstrapResult = mozilla::GetBootstrap(exePath, LibLoadingStrategy::NoReadAhead);
+  if (bootstrapResult.isErr())
+  {
     Output(true, "Couldn't load XPCOM.\n");
     return 255;
   }
 
-  ScopedLogging log;
+  gBootstrap = bootstrapResult.unwrap();
 
   if (argc > 1 && (IsArg(argv[1], "h") ||
                    IsArg(argv[1], "help") ||
@@ -225,37 +189,37 @@ int main(int argc, char* argv[])
 
   if (argc == 2 && (IsArg(argv[1], "v") || IsArg(argv[1], "version")))
   {
-    nsAutoCString milestone;
-    nsAutoCString version;
-    GetGREVersion(argv[0], &milestone, &version);
-    Output(false, "Mozilla XULRunner %s - %s\n",
-           milestone.get(), version.get());
+    // nsAutoCString milestone;
+    // nsAutoCString version;
+    // GetGREVersion(argv[0], &milestone, &version);
+    // Output(false, "Mozilla XULRunner %s - %s\n",
+    //        milestone.get(), version.get());
+    Output(false, "Mozilla XULRunner <TODO: version here>\n");
     return 0;
   }
 
-  rv = XPCOMGlueLoadXULFunctions(kXULFuncs);
-  if (NS_FAILED(rv)) {
-    Output(true, "Couldn't load XRE functions.\n");
-    return 255;
-  }
+  if (argc > 1)
+  {
+    // nsAutoCString milestone;
+    // nsresult rv = GetGREVersion(argv[0], &milestone, nullptr);
+    // if (NS_FAILED(rv))
+    //   return 2;
 
-  if (argc > 1) {
-    nsAutoCString milestone;
-    rv = GetGREVersion(argv[0], &milestone, nullptr);
-    if (NS_FAILED(rv))
-      return 2;
-
-    if (IsArg(argv[1], "gre-version")) {
-      if (argc != 2) {
+    if (IsArg(argv[1], "gre-version"))
+    {
+      if (argc != 2)
+      {
         Usage(argv[0]);
         return 1;
       }
 
-      printf("%s\n", milestone.get());
+      printf("TODO: gre-version here\n");
+      // printf("%s\n", milestone.get());
       return 0;
     }
 
-    if (IsArg(argv[1], "install-app")) {
+    if (IsArg(argv[1], "install-app"))
+    {
       Output(true, "--install-app support has been removed.  Use 'python install-app.py' instead.\n");
       return 1;
     }
@@ -263,14 +227,18 @@ int main(int argc, char* argv[])
 
   const char *appDataFile = getenv("XUL_APP_FILE");
 
-  if (!(appDataFile && *appDataFile)) {
-    if (argc < 2) {
+  if (!(appDataFile && *appDataFile))
+  {
+    if (argc < 2)
+    {
       Usage(argv[0]);
       return 1;
     }
 
-    if (IsArg(argv[1], "app")) {
-      if (argc == 2) {
+    if (IsArg(argv[1], "app"))
+    {
+      if (argc == 2)
+      {
         Usage(argv[0]);
         return 1;
       }
@@ -289,18 +257,10 @@ int main(int argc, char* argv[])
     putenv(kAppEnv);
   }
 
-  nsCOMPtr<nsIFile> appDataLF;
-  rv = XRE_GetFileFromPath(appDataFile, getter_AddRefs(appDataLF));
-  if (NS_FAILED(rv)) {
-    Output(true, "Error: unrecognized application.ini path.\n");
-    return 2;
-  }
+  BootstrapConfig config;
 
-  AutoAppData appData(appDataLF);
-  if (!appData) {
-    Output(true, "Error: couldn't parse application.ini.\n");
-    return 2;
-  }
+  config.appData = nullptr;
+  config.appDataPath = appDataFile;
 
-  return XRE_main(argc, argv, appData, 0);
+  return gBootstrap->XRE_main(argc, argv, config);
 }

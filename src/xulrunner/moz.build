@@ -7,8 +7,7 @@
 CONFIGURE_SUBST_FILES += ['installer/Makefile']
 
 DIRS += [
-    'app',
-    'stub',
+    # 'stub',
     'examples',
 ]
 
@@ -17,6 +16,8 @@ if CONFIG['MAKENSISU']:
 
 if CONFIG['OS_ARCH'] == 'WINNT':
     DIRS += ['tools/redit']
+
+DIRS += ['app']
 
 with Files('**'):
     BUG_COMPONENT = ('Toolkit', 'XULRunner')

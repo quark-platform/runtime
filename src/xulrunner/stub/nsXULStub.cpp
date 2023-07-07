@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "nsXPCOMGlue.h"
+// #include "nsXPCOMGlue.h"
 #include "nsINIParser.h"
 #include "nsXPCOMPrivate.h" // for XP MAXPATHLEN
 #include "nsXULAppAPI.h"
@@ -39,7 +39,7 @@
 
 #define VERSION_MAXLEN 128
 
-static void Output(bool isError, const char *fmt, ... )
+static void Output(bool isError, const char *fmt, ...)
 {
   va_list ap;
   va_start(ap, fmt);
@@ -57,12 +57,12 @@ static void Output(bool isError, const char *fmt, ... )
 
   wchar_t wide_msg[1024];
   MultiByteToWideChar(CP_ACP,
-		      0,
-		      msg,
-		      -1,
-		      wide_msg,
-		      sizeof(wide_msg) / sizeof(wchar_t));
-  
+                      0,
+                      msg,
+                      -1,
+                      wide_msg,
+                      sizeof(wide_msg) / sizeof(wchar_t));
+
   MessageBoxW(nullptr, wide_msg, L"XULRunner", flags);
 #else
   vfprintf(stderr, fmt, ap);
@@ -74,7 +74,7 @@ static void Output(bool isError, const char *fmt, ... )
 /**
  * Return true if |arg| matches the given argument name.
  */
-static bool IsArg(const char* arg, const char* s)
+static bool IsArg(const char *arg, const char *s)
 {
   if (*arg == '-')
   {
@@ -94,7 +94,7 @@ static bool IsArg(const char* arg, const char* s)
 /**
  * Return true if |aDir| is a valid file/directory.
  */
-static bool FolderExists(const char* aDir)
+static bool FolderExists(const char *aDir)
 {
 #ifdef XP_WIN
   wchar_t wideDir[MAX_PATH];
@@ -106,7 +106,7 @@ static bool FolderExists(const char* aDir)
 #endif
 }
 
-static nsresult GetRealPath(const char* appDataFile, char* *aResult)
+static nsresult GetRealPath(const char *appDataFile, char **aResult)
 {
 #ifdef XP_WIN
   wchar_t wAppDataFile[MAX_PATH];
@@ -128,29 +128,30 @@ static nsresult GetRealPath(const char* appDataFile, char* *aResult)
 class AutoAppData
 {
 public:
-  AutoAppData(nsIFile* aINIFile) : mAppData(nullptr) {
+  AutoAppData(nsIFile *aINIFile) : mAppData(nullptr)
+  {
     nsresult rv = XRE_CreateAppData(aINIFile, &mAppData);
     if (NS_FAILED(rv))
       mAppData = nullptr;
   }
-  ~AutoAppData() {
+  ~AutoAppData()
+  {
     if (mAppData)
       XRE_FreeAppData(mAppData);
   }
 
-  operator nsXREAppData*() const { return mAppData; }
-  nsXREAppData* operator -> () const { return mAppData; }
+  operator nsXREAppData *() const { return mAppData; }
+  nsXREAppData *operator->() const { return mAppData; }
 
 private:
-  nsXREAppData* mAppData;
+  nsXREAppData *mAppData;
 };
 
 XRE_CreateAppDataType XRE_CreateAppData;
 XRE_FreeAppDataType XRE_FreeAppData;
 XRE_mainType XRE_main;
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
   nsresult rv;
   char *lastSlash;
@@ -175,16 +176,16 @@ main(int argc, char **argv)
     return 1;
 
   CFURLRef iniFileURL =
-    CFURLCreateCopyAppendingPathComponent(kCFAllocatorDefault,
-                                          absResourcesURL,
-                                          CFSTR("application.ini"),
-                                          false);
+      CFURLCreateCopyAppendingPathComponent(kCFAllocatorDefault,
+                                            absResourcesURL,
+                                            CFSTR("application.ini"),
+                                            false);
   CFRelease(absResourcesURL);
   if (!iniFileURL)
     return 1;
 
   CFStringRef iniPathStr =
-    CFURLCopyFileSystemPath(iniFileURL, kCFURLPOSIXPathStyle);
+      CFURLCopyFileSystemPath(iniFileURL, kCFURLPOSIXPathStyle);
   CFRelease(iniFileURL);
   if (!iniPathStr)
     return 1;
@@ -200,8 +201,8 @@ main(int argc, char **argv)
   if (!::GetModuleFileNameW(nullptr, wide_path, MAX_PATH))
     return 1;
 
-  WideCharToMultiByte(CP_UTF8, 0, wide_path,-1,
-		      iniPath, MAX_PATH, nullptr, nullptr);
+  WideCharToMultiByte(CP_UTF8, 0, wide_path, -1,
+                      iniPath, MAX_PATH, nullptr, nullptr);
 
 #else
   // on unix, there is no official way to get the path of the current binary.
@@ -216,10 +217,13 @@ main(int argc, char **argv)
   struct stat fileStat;
   strncpy(tmpPath, argv[0], sizeof(tmpPath));
   lastSlash = strrchr(tmpPath, '/');
-  if (lastSlash) {
+  if (lastSlash)
+  {
     *lastSlash = 0;
     realpath(tmpPath, iniPath);
-  } else {
+  }
+  else
+  {
     const char *path = getenv("PATH");
     if (!path)
       return 1;
@@ -230,9 +234,11 @@ main(int argc, char **argv)
 
     bool found = false;
     char *token = strtok(pathdup, ":");
-    while (token) {
+    while (token)
+    {
       sprintf(tmpPath, "%s/%s", token, argv[0]);
-      if (stat(tmpPath, &fileStat) == 0) {
+      if (stat(tmpPath, &fileStat) == 0)
+      {
         found = true;
         lastSlash = strrchr(tmpPath, '/');
         *lastSlash = 0;
@@ -241,7 +247,7 @@ main(int argc, char **argv)
       }
       token = strtok(nullptr, ":");
     }
-    free (pathdup);
+    free(pathdup);
     if (!found)
       return 1;
   }
@@ -266,9 +272,11 @@ main(int argc, char **argv)
   greFound = FolderExists(greDir);
 
 #ifdef XP_UNIX
-  if (greFound) {
+  if (greFound)
+  {
     char resolved_greDir[MAXPATHLEN] = "";
-    if (realpath(greDir, resolved_greDir) && *resolved_greDir) {
+    if (realpath(greDir, resolved_greDir) && *resolved_greDir)
+    {
       strncpy(greDir, resolved_greDir, MAXPATHLEN);
     }
   }
@@ -278,13 +286,15 @@ main(int argc, char **argv)
 
 #endif
 
-  // If -app parameter was passed in, it is now time to take it under 
+  // If -app parameter was passed in, it is now time to take it under
   // consideration.
   const char *appDataFile;
   appDataFile = getenv("XUL_APP_FILE");
-  if (!appDataFile || !*appDataFile) 
-    if (argc > 1 && IsArg(argv[1], "app")) {
-      if (argc == 2) {
+  if (!appDataFile || !*appDataFile)
+    if (argc > 1 && IsArg(argv[1], "app"))
+    {
+      if (argc == 2)
+      {
         Output(false, "specify APP-FILE (optional)\n");
         return 1;
       }
@@ -299,19 +309,21 @@ main(int argc, char **argv)
 
       char kAppEnv[MAXPATHLEN];
       snprintf(kAppEnv, MAXPATHLEN, "XUL_APP_FILE=%s", appDataFile);
-      if (putenv(kAppEnv)) 
+      if (putenv(kAppEnv))
         Output(false, "Couldn't set %s.\n", kAppEnv);
 
-      char *result = (char*) calloc(sizeof(char), MAXPATHLEN);
-      if (NS_FAILED(GetRealPath(appDataFile, &result))) {
+      char *result = (char *)calloc(sizeof(char), MAXPATHLEN);
+      if (NS_FAILED(GetRealPath(appDataFile, &result)))
+      {
         Output(true, "Invalid application.ini path.\n");
         return 1;
       }
-      
-      // We have a valid application.ini path passed in to the -app parameter 
+
+      // We have a valid application.ini path passed in to the -app parameter
       // but not yet a valid greDir, so lets look for it also on the same folder
       // as the stub.
-      if (!greFound) {
+      if (!greFound)
+      {
         lastSlash = strrchr(iniPath, PATH_SEPARATOR_CHAR);
         if (!lastSlash)
           return 1;
@@ -321,39 +333,46 @@ main(int argc, char **argv)
         snprintf(greDir, sizeof(greDir), "%s" XPCOM_DLL, iniPath);
         greFound = FolderExists(greDir);
       }
-      
+
       // copy it back.
       strcpy(iniPath, result);
     }
-  
+
   nsINIParser parser;
   rv = parser.Init(iniPath);
-  if (NS_FAILED(rv)) {
+  if (NS_FAILED(rv))
+  {
     fprintf(stderr, "Could not read application.ini\n");
     return 1;
   }
 
-  if (!greFound) {
+  if (!greFound)
+  {
 #ifdef XP_MACOSX
     // The bundle can be found next to the executable, in the MacOS dir.
     CFURLRef exurl = CFBundleCopyExecutableURL(appBundle);
     CFURLRef absexurl = nullptr;
-    if (exurl) {
+    if (exurl)
+    {
       absexurl = CFURLCopyAbsoluteURL(exurl);
       CFRelease(exurl);
     }
 
-    if (absexurl) {
+    if (absexurl)
+    {
       char tbuffer[MAXPATHLEN];
 
       if (CFURLGetFileSystemRepresentation(absexurl, true,
-                                           (UInt8*) tbuffer,
+                                           (UInt8 *)tbuffer,
                                            sizeof(tbuffer)) &&
-          access(tbuffer, R_OK | X_OK) == 0) {
-        if (realpath(tbuffer, greDir)) {
+          access(tbuffer, R_OK | X_OK) == 0)
+      {
+        if (realpath(tbuffer, greDir))
+        {
           greFound = true;
         }
-        else {
+        else
+        {
           greDir[0] = '\0';
         }
       }
@@ -361,34 +380,39 @@ main(int argc, char **argv)
       CFRelease(absexurl);
     }
 #endif
-    if (!greFound) {
+    if (!greFound)
+    {
       Output(false, "Could not find the Mozilla runtime.\n");
       return 1;
     }
   }
 
   rv = XPCOMGlueStartup(greDir);
-  if (NS_FAILED(rv)) {
-    if (rv == NS_ERROR_OUT_OF_MEMORY) {
+  if (NS_FAILED(rv))
+  {
+    if (rv == NS_ERROR_OUT_OF_MEMORY)
+    {
       char applicationName[2000] = "this application";
       parser.GetString("App", "Name", applicationName, sizeof(applicationName));
       Output(true, "Not enough memory available to start %s.\n",
              applicationName);
-    } else {
+    }
+    else
+    {
       Output(true, "Couldn't load XPCOM.\n");
     }
     return 1;
   }
 
   static const nsDynamicFunctionLoad kXULFuncs[] = {
-    { "XRE_CreateAppData", (NSFuncPtr*) &XRE_CreateAppData },
-    { "XRE_FreeAppData", (NSFuncPtr*) &XRE_FreeAppData },
-    { "XRE_main", (NSFuncPtr*) &XRE_main },
-    { nullptr, nullptr }
-  };
+      {"XRE_CreateAppData", (NSFuncPtr *)&XRE_CreateAppData},
+      {"XRE_FreeAppData", (NSFuncPtr *)&XRE_FreeAppData},
+      {"XRE_main", (NSFuncPtr *)&XRE_main},
+      {nullptr, nullptr}};
 
   rv = XPCOMGlueLoadXULFunctions(kXULFuncs);
-  if (NS_FAILED(rv)) {
+  if (NS_FAILED(rv))
+  {
     Output(true, "Couldn't load XRE functions.\n");
     return 1;
   }
@@ -407,23 +431,27 @@ main(int argc, char **argv)
     rv = NS_NewNativeLocalFile(nsDependentCString(iniPath), false,
                                getter_AddRefs(iniFile));
 #endif
-    if (NS_FAILED(rv)) {
+    if (NS_FAILED(rv))
+    {
       Output(true, "Couldn't find application.ini file.\n");
       return 1;
     }
 
     AutoAppData appData(iniFile);
-    if (!appData) {
+    if (!appData)
+    {
       Output(true, "Error: couldn't parse application.ini.\n");
       return 1;
     }
 
     NS_ASSERTION(appData->directory, "Failed to get app directory.");
 
-    if (!appData->xreDirectory) {
+    if (!appData->xreDirectory)
+    {
       // chop "libxul.so" off the GRE path
       lastSlash = strrchr(greDir, PATH_SEPARATOR_CHAR);
-      if (lastSlash) {
+      if (lastSlash)
+      {
         *lastSlash = '\0';
       }
 #ifdef XP_WIN

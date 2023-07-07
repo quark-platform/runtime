@@ -17,15 +17,14 @@ MOZ_WINCONSOLE = 0
 endif
 endif
 
-# This switches $(INSTALL) to copy mode, like $(SYSINSTALL), so things that
-# shouldn't get 755 perms need $(IFLAGS1) for either way of calling nsinstall.
-NSDISTMODE = copy
-
 include $(topsrcdir)/config/config.mk
+
+# TODO: Add this to a script that can change the application name
+objdir = $(topobjdir)/$(PROJECT_DIR)/app
 
 include $(topsrcdir)/config/rules.mk
 
-DEFINES += -DXULRUNNER_ICO='"$(DIST)/branding/xulrunner.ico"' -DDOCUMENT_ICO='"$(DIST)/branding/document.ico"'
+# DEFINES += -DXULRUNNER_ICO='"$(DIST)/branding/xulrunner.ico"' -DDOCUMENT_ICO='"$(DIST)/branding/document.ico"'
 
 ifdef MOZ_WIDGET_GTK
 libs::

@@ -11,7 +11,18 @@
 
 # We don't want to create a dependency on mozglue.
 # Statically link against the RTL on windows
-GeckoProgram(CONFIG['XULRUNNER_STUB_NAME'], mozglue=None, msvcrt='static')
+if CONFIG['OS_ARCH'] == 'WINNT':
+    PROGRAM(CONFIG['XULRUNNER_STUB_NAME'], mozglue=None)
+    USE_STATIC_LIBS = True
+
+    LOCAL_INCLUDES += ['/toolkit/xre']
+    # this is an awful workaround - glandium
+    USE_LIBS += ['mfbt_staticruntime']
+
+    DEFINES['MOZ_XULRUNNER'] = True
+    RCINCLUDE = 'xulrunner-stub.rc'
+else:
+    GeckoProgram(CONFIG['XULRUNNER_STUB_NAME'], mozglue=None)
 
 SOURCES += [
     'nsXULStub.cpp',
@@ -27,24 +38,15 @@ LOCAL_INCLUDES += [
     '/xpcom/build',
 ]
 
-if CONFIG['OS_ARCH'] == 'WINNT':
-    LOCAL_INCLUDES += ['/toolkit/xre']
-    # this is an awful workaround - glandium
-    USE_LIBS += ['mfbt_staticruntime']
-
 if CONFIG['_MSC_VER']:
     WIN32_EXE_LDFLAGS += ['-ENTRY:wmainCRTStartup']
-
-if CONFIG['OS_ARCH'] == 'WINNT':
-    DEFINES['MOZ_XULRUNNER'] = True
-    RCINCLUDE = 'xulrunner-stub.rc'
 
 if CONFIG['OS_ARCH'] == 'WINNT':
     OS_LIBS += [
         'shell32',
     ]
 
-DISABLE_STL_WRAPPING = True
+DisableStlWrapping()
 
 # Need to link with CoreFoundation on Mac
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'cocoa':

@@ -1,0 +1,9 @@
+{
+  "files.associations": {
+    "*.inc": "cpp",
+    "*.def": "cpp",
+    "*.tcc": "cpp",
+    "cmath": "cpp",
+    "complex": "cpp"
+  }
+}

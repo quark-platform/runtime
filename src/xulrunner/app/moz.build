@@ -16,11 +16,13 @@ DEFINES['XULRUNNER_PROGNAME'] = '"xulrunner"'
 if CONFIG['MOZ_DEBUG']:
     DEFINES['DEBUG'] = True
 
+DIST_SUBDIR = ""
+
 LOCAL_INCLUDES += [
-    '/toolkit/profile',
-    '/toolkit/xre',
-    '/xpcom/base',
-    '/xpcom/build',
+    "!/build",
+    "/toolkit/xre",
+    "/xpcom/base",
+    "/xpcom/build",
 ]
 
 if CONFIG['_MSC_VER']:
@@ -28,16 +30,6 @@ if CONFIG['_MSC_VER']:
     # a console application.
     WIN32_EXE_LDFLAGS += ['-ENTRY:wmainCRTStartup']
 
-# Control the default heap size.
-# This is the heap returned by GetProcessHeap().
-# As we use the CRT heap, the default size is too large and wastes VM.
-#
-# The default heap size is 1MB on Win32.
-# The heap will grow if need be.
-#
-# Set it to 256k.  See bug 127069.
-if CONFIG['OS_ARCH'] == 'WINNT' and not CONFIG['GNU_CC']:
-    LDFLAGS += ['/HEAP:0x40000']
 
 if CONFIG['OS_ARCH'] == 'WINNT':
     RCINCLUDE = 'splash.rc'
@@ -52,7 +44,7 @@ if CONFIG['OS_ARCH'] == 'WINNT':
         'winspool',
     ]
 
-DISABLE_STL_WRAPPING = True
+DisableStlWrapping()
 
 JS_PREFERENCE_PP_FILES += [
     'xulrunner.js',
