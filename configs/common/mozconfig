@@ -1,0 +1,3 @@
+ac_add_options --with-ccache=sccache
+
+. $topsrcdir/xulrunner/config/mozconfig

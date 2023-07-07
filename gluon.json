@@ -1,0 +1,21 @@
+{
+  "name": "Quark Runtime",
+  "vendor": "Fushra",
+  "appId": "com.fushra.quark.runtime",
+  "binaryName": "quark-runtime",
+  "version": {
+    "product": "firefox-esr",
+    "version": "102.13.0esr"
+  },
+  "buildOptions": {
+    "windowsUseSymbolicLinks": false
+  },
+  "addons": {},
+  "brands": {},
+  "license": {
+    "ignoredFiles": [
+      ".*\\.json"
+    ],
+    "licenseType": "MPL-2.0"
+  }
+}
