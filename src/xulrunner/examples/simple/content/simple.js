@@ -12,12 +12,13 @@ function onButtonClick() {
 
   var contractid = '@test.mozilla.org/simple-test;1?impl=js'
 
-  var test = Components.classes[contractid].createInstance(
-    Components.interfaces.nsISimpleTest
-  )
+  var test = Cc[contractid].createInstance(Ci.nsISimpleTest)
 
   textbox.value = test.add(textbox.value, 1)
 }
 
+console.log(Cc)
 console.log(document.getElementById('increment'))
-document.getElementById('increment').addEventListener('command', onButtonClick)
+document
+  .getElementById('increment')
+  .addEventListener('click', () => onButtonClick())
