@@ -5,7 +5,7 @@
   "binaryName": "quark-runtime",
   "version": {
     "product": "firefox-esr",
-    "version": "102.13.0esr"
+    "version": "115.0.1esr"
   },
   "buildOptions": {
     "windowsUseSymbolicLinks": false
