@@ -46,10 +46,6 @@ if CONFIG['OS_ARCH'] == 'WINNT':
 
 DisableStlWrapping()
 
-JS_PREFERENCE_PP_FILES += [
-    'xulrunner.js',
-]
-
 if CONFIG['OS_ARCH'] == 'WINNT':
     BRANDING_FILES += [
         'document.ico',

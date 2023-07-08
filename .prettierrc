@@ -1,4 +1,18 @@
 {
   "semi": false,
-  "singleQuote": true
+  "singleQuote": true,
+  "overrides": [
+    {
+      "files": "src/xulrunner/examples/**/*-prefs.js",
+      "options": {
+        "semi": true
+      }
+    },
+    {
+      "files": "src/xulrunner/config/prefs/*.js",
+      "options": {
+        "semi": true
+      }
+    }
+  ]
 }

@@ -12,6 +12,7 @@
     "moz.configure": "python",
     "app.mozbuild": "python",
     "Makefile.in": "makefile",
-    "mozconfig": "shellscript"
+    "mozconfig": "shellscript",
+    "components.conf": "python"
   }
 }

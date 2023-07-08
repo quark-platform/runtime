@@ -7,8 +7,17 @@
 CONFIGURE_SUBST_FILES += ['installer/Makefile']
 
 DIRS += [
+    'components',
     # 'stub',
     'examples',
+]
+
+JS_PREFERENCE_PP_FILES += [
+    "config/prefs/xulrunner.js"
+]
+
+JS_PREFERENCE_FILES += [
+    "config/prefs/devtools.js"
 ]
 
 if CONFIG['MAKENSISU']:

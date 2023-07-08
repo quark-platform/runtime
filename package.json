@@ -20,5 +20,8 @@
   "license": "ISC",
   "dependencies": {
     "gluon-build": "1.0.0-rc.5"
+  },
+  "devDependencies": {
+    "gecko-types": "github:quark-platform/gecko-types"
   }
 }
