@@ -4,6 +4,8 @@
     "*.def": "cpp",
     "*.tcc": "cpp",
     "cmath": "cpp",
-    "complex": "cpp"
+    "complex": "cpp",
+    "mutex": "cpp",
+    "shared_mutex": "cpp"
   }
 }

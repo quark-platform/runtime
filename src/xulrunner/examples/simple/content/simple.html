@@ -5,29 +5,13 @@
 
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
 
-<!-- <window
-  id="simple"
-  title="&simple.title;"
-  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
->
-  <script src="chrome://simple/content/simple.js" />
-  <vbox>
-    <textbox id="textbox" value="&simple.textValue;" flex="1" />
-    <button
-      id="button"
-      label="&simple.buttonLabel;"
-      oncommand="onButtonClick();"
-    />
-  </vbox>
-</window> -->
-
 <html>
   <head>
     <title>Simple Example</title>
   </head>
   <body>
     <input type="text" name="textbox" id="textbox" />
-    <button>Increment</button>
+    <button id="increment">Increment</button>
 
     <script src="./simple.js" type="module"></script>
   </body>
