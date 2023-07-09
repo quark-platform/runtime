@@ -5,12 +5,22 @@
 
 console.log('Hello world!')
 
+let lazy = {}
+ChromeUtils.defineESModuleGetters(lazy, {
+  BrowserToolboxLauncher:
+    'resource://devtools/client/framework/browser-toolbox/Launcher.sys.mjs',
+})
+
+function launchDevTools() {
+  lazy.BrowserToolboxLauncher.init()
+}
+
 function onButtonClick() {
   console.log('Button clicked')
 
   var textbox = document.getElementById('textbox')
 
-  var contractid = '@test.mozilla.org/simple-test;1?impl=js'
+  var contractid = '@test.mozilla.org/simple-test;1'
 
   var test = Cc[contractid].createInstance(Ci.nsISimpleTest)
 
@@ -19,6 +29,10 @@ function onButtonClick() {
 
 console.log(Cc)
 console.log(document.getElementById('increment'))
+
 document
   .getElementById('increment')
   .addEventListener('click', () => onButtonClick())
+document
+  .getElementById('open-devtools')
+  .addEventListener('click', () => launchDevTools())

@@ -24,6 +24,7 @@
 #include "prprf.h"
 #include "prenv.h"
 // #include "nsINIParser.h" GRE Versioning stuff that needs to be in libxul :(
+#include "application.ini.h"
 
 #ifdef XP_WIN
 #define XRE_DONT_SUPPORT_XPSP2 // See https://bugzil.la/1023941#c32
@@ -259,8 +260,16 @@ int main(int argc, char *argv[])
 
   BootstrapConfig config;
 
-  config.appData = nullptr;
-  config.appDataPath = appDataFile;
+  if (appDataFile[0] != '-')
+  {
+    config.appData = nullptr;
+    config.appDataPath = appDataFile;
+  }
+  else
+  {
+    config.appData = &sAppData;
+    config.appDataPath = "quark-runtime";
+  }
 
   return gBootstrap->XRE_main(argc, argv, config);
 }

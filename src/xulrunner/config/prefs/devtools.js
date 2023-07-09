@@ -353,3 +353,11 @@ pref('devtools.debugger.features.async-live-stacks', false);
 // This is currently not exposed by any UI to avoid making
 // about:devtools-toolbox tabs unusable by mistake.
 pref('devtools.popup.disable_autohide', false);
+
+// Number of usages of the web console.
+// If this is less than 5, then pasting code into the web console is disabled
+pref('devtools.selfxss.count', 5);
+
+// Whether to show the dialogs opened at the content level, such as
+// alert() or prompt(), using a SubDialogManager in the TabDialogBox.
+pref('prompts.contentPromptSubDialog', false);

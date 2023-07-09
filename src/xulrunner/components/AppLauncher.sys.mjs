@@ -1,6 +1,5 @@
 //@ts-check
 ///<reference types="gecko-types" />
-///<reference types="gecko-types" />
 
 /**
  * This component is responsible for launching application windows and

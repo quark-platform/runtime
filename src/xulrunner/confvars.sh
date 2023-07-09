@@ -19,3 +19,6 @@ MOZ_SERVICES_SYNC=1
 MOZ_MEDIA_NAVIGATOR=1
 MOZ_SERVICES_HEALTHREPORT=1
 MOZ_DISABLE_EXPORT_JS=1
+
+# Include the DevTools client, not just the server (which is the default)
+MOZ_DEVTOOLS=all
