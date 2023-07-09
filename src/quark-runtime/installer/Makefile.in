@@ -4,145 +4,178 @@
 
 STANDALONE_MAKEFILE := 1
 
-NO_PKG_FILES = \
-	xulrunner-config \
-	regchrome* \
-	regxpcom* \
-	$(NULL)
-
-# We want xpcshell, run-mozilla and install_app.py in the SDK but not in the binary package.
-ifndef STAGE_SDK
-NO_PKG_FILES += \
-	xpcshell* \
-	run-mozilla* \
-	install_app.py \
-	$(NULL)
-endif
-
-# If we're on mac, we don't want an end-user-facing DMG, we want a .tar.bz2
-# which developers then use to package their application.
-
-ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
-MOZ_PKG_FORMAT = BZ2
-_APPNAME = XUL.framework
-_BINPATH = /$(_APPNAME)/Versions/Current
-_RESPATH := $(_BINPATH)
-endif
-
 include $(topsrcdir)/config/rules.mk
 
-INSTALL_SDK = 1
+MOZ_PKG_REMOVALS = $(srcdir)/removed-files.in
 
-include $(topsrcdir)/toolkit/mozapps/installer/signing.mk
+MOZ_PKG_MANIFEST = $(srcdir)/package-manifest.in
+MOZ_PKG_DUPEFLAGS = -f $(srcdir)/allowed-dupes.mn
+
+DEFINES += -DPKG_LOCALE_MANIFEST=$(topobjdir)/quark-runtime/installer/locale-manifest.in
+MOZ_CHROME_LOCALE_ENTRIES=@RESPATH@/chrome/
+
+# Some files have been already bundled with xulrunner
+MOZ_PKG_FATAL_WARNINGS = 1
+
+# When packaging an artifact build not all xpt files expected by the
+# packager will be present.
+ifdef MOZ_ARTIFACT_BUILDS
+MOZ_PKG_FATAL_WARNINGS =
+endif
+
+DEFINES += -DMOZ_APP_NAME=$(MOZ_APP_NAME) -DPREF_DIR=$(PREF_DIR) -DMOZ_APP_DISPLAYNAME="$(MOZ_APP_DISPLAYNAME)"
+
+ifdef MOZ_DEBUG
+DEFINES += -DMOZ_DEBUG=1
+endif
+ifdef MOZ_LAYOUT_DEBUGGER
+DEFINES += -DMOZ_LAYOUT_DEBUGGER=1
+endif
+
+ifeq ($(MOZ_WIDGET_TOOLKIT),gtk)
+DEFINES += -DMOZ_GTK=1
+endif
+
+ifdef MOZ_SYSTEM_NSPR
+DEFINES += -DMOZ_SYSTEM_NSPR=1
+endif
+
+ifdef MOZ_SYSTEM_NSS
+DEFINES += -DMOZ_SYSTEM_NSS=1
+endif
+
+ifdef MOZ_ARTIFACT_BUILDS
+DEFINES += -DMOZ_ARTIFACT_BUILDS=1
+endif
+
+ifdef MOZ_EME_WIN32_ARTIFACT
+DEFINES += -DMOZ_EME_WIN32_ARTIFACT=1
+endif
+
+DEFINES += -DJAREXT=
+
+ifdef MOZ_ANGLE_RENDERER
+DEFINES += -DMOZ_ANGLE_RENDERER=$(MOZ_ANGLE_RENDERER)
+ifdef MOZ_D3DCOMPILER_VISTA_DLL
+DEFINES += -DMOZ_D3DCOMPILER_VISTA_DLL=$(MOZ_D3DCOMPILER_VISTA_DLL)
+endif
+endif
+
+ifdef MOZ_ENABLE_SKIA_PDF
+DEFINES += -DMOZ_ENABLE_SKIA_PDF=$(MOZ_ENABLE_SKIA_PDF)
+endif
+
+DEFINES += -DMOZ_CHILD_PROCESS_NAME=$(MOZ_CHILD_PROCESS_NAME)
+DEFINES += -DMOZ_EME_PROCESS_NAME="$(MOZ_EME_PROCESS_NAME)"
+
+# Set MSVC dlls version to package, if any.
+ifdef MOZ_NO_DEBUG_RTL
+ifdef WIN32_REDIST_DIR
+ifndef MOZ_ARTIFACT_BUILDS
+DEFINES += -DMOZ_PACKAGE_MSVC_DLLS=1
+DEFINES += -DMSVC_C_RUNTIME_DLL=$(MSVC_C_RUNTIME_DLL)
+ifdef MSVC_C_RUNTIME_1_DLL
+DEFINES += -DMSVC_C_RUNTIME_1_DLL=$(MSVC_C_RUNTIME_1_DLL)
+endif
+DEFINES += -DMSVC_CXX_RUNTIME_DLL=$(MSVC_CXX_RUNTIME_DLL)
+endif
+ifdef WIN_UCRT_REDIST_DIR
+DEFINES += -DMOZ_PACKAGE_WIN_UCRT_DLLS=1
+endif
+endif
+endif
+
+ifneq (,$(filter WINNT Darwin Android,$(OS_TARGET)))
+DEFINES += -DMOZ_SHARED_MOZGLUE=1
+endif
+
+ifdef NECKO_WIFI
+DEFINES += -DNECKO_WIFI
+endif
+
+ifdef MAKENSISU
+DEFINES += -DHAVE_MAKENSISU=1
+endif
+
+ifdef MOZ_DEFAULT_BROWSER_AGENT
+DEFINES += -DMOZ_DEFAULT_BROWSER_AGENT=1
+endif
+
+ifdef MOZ_NOTIFICATION_SERVER
+DEFINES += -DMOZ_NOTIFICATION_SERVER=1
+endif
+
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+MOZ_PKG_MAC_DSSTORE=$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/dsstore
+MOZ_PKG_MAC_BACKGROUND=$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/background.png
+MOZ_PKG_MAC_ICON=$(topsrcdir)/$(MOZ_BRANDING_DIRECTORY)/disk.icns
+MOZ_PKG_MAC_EXTRA=--symlink '/Applications:/ '
+endif
+
 include $(topsrcdir)/toolkit/mozapps/installer/packager.mk
 
-# Add pkg-config files to the install:: target
-
-pkg_config_files = \
-	libxul.pc \
-	libxul-embedding.pc \
-	mozilla-js.pc \
-	mozilla-plugin.pc \
-	$(NULL)
-
-ifdef MOZ_NATIVE_NSPR
-NSPR_NAME=nspr
-NSPR_VERSION=$(shell $(NSPR_CONFIG) --version)
+ifeq (Darwin,$(OS_TARGET))
+BINPATH = $(_BINPATH)
+DEFINES += -DAPPNAME='$(_APPNAME)'
 else
-pkg_config_files += mozilla-nspr.pc
-NSPR_NAME=mozilla-nspr
-FULL_NSPR_CFLAGS=-I\$${includedir}
-FULL_NSPR_LIBS=$(subst $(prefix),\$${sdkdir},$(shell $(DEPTH)/nsprpub/config/nspr-config --libs))
-NSPR_VERSION=$(shell $(DEPTH)/nsprpub/config/nspr-config --version)
+# Every other platform just winds up in dist/bin
+BINPATH = bin
 endif
+DEFINES += -DBINPATH='$(BINPATH)'
 
-MOZ_XUL_LINK = -lxpcomglue_s -lxul
-ifdef JS_SHARED_LIBRARY
-MOZ_JS_LINK = -lmozjs
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+RESPATH = $(_RESPATH)
 else
-MOZ_JS_LINK = $(MOZ_XUL_LINK)
+RESPATH = $(BINPATH)
+endif
+DEFINES += -DRESPATH='$(RESPATH)'
+
+LPROJ_ROOT = $(firstword $(subst -, ,$(AB_CD)))
+ifeq (cocoa,$(MOZ_WIDGET_TOOLKIT))
+ifeq (zh-TW,$(AB_CD))
+LPROJ_ROOT := $(subst -,_,$(AB_CD))
+endif
+endif
+DEFINES += -DLPROJ_ROOT=$(LPROJ_ROOT)
+
+ifdef CLANG_CXX
+DEFINES += -DCLANG_CXX
+endif
+ifdef CLANG_CL
+DEFINES += -DCLANG_CL
 endif
 
-$(warning FULL_NSPR_CFLAGS=$(FULL_NSPR_CFLAGS))
-
-ifndef MOZ_NATIVE_NSS
-pkg_config_files += mozilla-nss.pc
+ifdef LLVM_SYMBOLIZER
+DEFINES += -DLLVM_SYMBOLIZER=$(notdir $(LLVM_SYMBOLIZER))
+endif
+ifdef MOZ_CLANG_RT_ASAN_LIB_PATH
+DEFINES += -DMOZ_CLANG_RT_ASAN_LIB=$(notdir $(MOZ_CLANG_RT_ASAN_LIB_PATH))
 endif
 
-%.pc: $(srcdir)/%.pc.in $(GLOBAL_DEPS)
-	cat $< | sed \
-	-e "s|%prefix%|$(prefix)|" \
-	-e "s|%includedir%|$(includedir)|" \
-	-e "s|%idldir%|$(idldir)|" \
-	-e "s|%sdkdir%|$(sdkdir)|" \
-	-e "s|%MOZ_APP_NAME%|$(MOZ_APP_NAME)|" \
-	-e "s|%MOZILLA_VERSION%|$(MOZ_APP_VERSION)|" \
-	-e "s|%WCHAR_CFLAGS%|$(WCHAR_CFLAGS)|" \
-	-e "s|%FULL_NSPR_LIBS%|$(FULL_NSPR_LIBS)|" \
-	-e "s|%FULL_NSPR_CFLAGS%|$(FULL_NSPR_CFLAGS)|" \
-	-e "s|%NSPR_NAME%|$(NSPR_NAME)|" \
-	-e "s|%NSPR_VERSION%|$(NSPR_VERSION)|" \
-	-e "s|%MOZ_XUL_LINK%|$(MOZ_XUL_LINK)|" \
-	-e "s|%MOZ_JS_LINK%|$(MOZ_JS_LINK)|" > $@
-	chmod 644 $@
+# Builds using the hybrid FasterMake/RecursiveMake backend will
+# fail to produce a langpack. See bug 1255096.
+libs::
+#ifeq (,$(filter FasterMake+RecursiveMake,$(BUILD_BACKENDS)))
+#	$(MAKE) -C $(DEPTH)/quark-runtime/locales langpack
+#endif
 
-install:: $(pkg_config_files)
-	@echo pkg_config_file: $(pkg_config_files)
-	$(SYSINSTALL) $(IFLAGS1) $^ $(DESTDIR)$(libdir)/pkgconfig
-
-GARBAGE += $(pkg_config_files)
-
-GARBAGE += debian/changelog
-
-DEBDESTDIR=debian/$(MOZ_BUILD_APP)
-
-GRE_BUILDID = $(shell $(PYTHON) $(topsrcdir)/config/printconfigsetting.py $(DIST)/bin/platform.ini Build BuildID)
-MOZ_DEB_TIMESTAMP = "$(shell date  +"%a, %d  %b %Y %T %z" )"
-
-DEFINES += \
-	-DGRE_MILESTONE=$(GRE_MILESTONE) \
-	-DGRE_BUILDID=$(GRE_BUILDID) \
-	-DMOZ_DEB_TIMESTAMP=$(MOZ_DEB_TIMESTAMP) \
-	-DMOZ_APP_NAME=$(MOZ_APP_NAME) \
-	-Dinstalldir=$(installdir) \
-	$(NULL)
-
-ifeq ($(OS_TARGET),Linux)
-debian/changelog: $(srcdir)/debian/changelog.in  $(DIST)/bin/platform.ini
-	$(call py_action,preprocessor, \
-        $(AUTOMATION_PPARGS) $(DEFINES) $(ACDEFINES) $^ -o $@)
-
-debian/xulrunner.links: $(srcdir)/debian/xulrunner.links.in
-	$(call py_action,preprocessor, \
-        $(AUTOMATION_PPARGS) $(DEFINES) $(ACDEFINES) $^ -o $@)
-
-debian/xulrunner.service: $(srcdir)/debian/xulrunner.service.in
-	$(call py_action,preprocessor, \
-        $(AUTOMATION_PPARGS) $(DEFINES) $(ACDEFINES) $^ -o $@)
-
-debian/prerm: $(srcdir)/debian/prerm.in
-	$(call py_action,preprocessor, \
-        $(AUTOMATION_PPARGS) $(DEFINES) $(ACDEFINES) $^ -o $@)
-
-debian/postinst: $(srcdir)/debian/postinst.in
-	$(call py_action,preprocessor, \
-        $(AUTOMATION_PPARGS) $(DEFINES) $(ACDEFINES) $^ -o $@)
-
-package:
-	$(MAKE) package -C $(DEPTH)
-
-deb: package debian/changelog debian/xulrunner.service debian/xulrunner.links
-	$(NSINSTALL)  $(topsrcdir)/$(MOZ_BUILD_APP)/installer/debian .
-	rm -fr $(DEBDESTDIR)
-	$(NSINSTALL) -D $(DEBDESTDIR)/$(installdir)
-	cp -pRL $(DEPTH)/dist/$(MOZ_BUILD_APP)/* $(DEBDESTDIR)/$(installdir)
-	$(NSINSTALL) -D $(DEBDESTDIR)/usr/share/dbus-1/services/
-	cp debian/$(MOZ_BUILD_APP).service $(DEBDESTDIR)/usr/share/dbus-1/services/org.mozilla.$(MOZ_BUILD_APP).service
-	dh_link; fakeroot dh_fixperms; fakeroot dh_installdeb; fakeroot dh_shlibdeps; fakeroot dh_gencontrol; fakeroot dh_md5sums; fakeroot dh_builddeb;
+ifeq (WINNT,$(OS_ARCH))
+PKGCOMP_FIND_OPTS =
+else
+PKGCOMP_FIND_OPTS = -L
+endif
+ifeq (Darwin, $(OS_ARCH))
+FINDPATH = $(_APPNAME)/Contents/MacOS
+else
+FINDPATH=bin
 endif
 
-DEB_BUILD_ARCH = $(shell dpkg-architecture -qDEB_BUILD_ARCH)
-# package name comes from xulrunner/installer/debian/changelog.in
-DEB_PKG_NAME  = $(MOZ_PKG_APPNAME)_$(GRE_MILESTONE)-$(GRE_BUILDID)_$(DEB_BUILD_ARCH).deb
-# relative to $(DIST)
-UPLOAD_EXTRA_FILES += ../xulrunner/$(DEB_PKG_NAME)
+package-compare::
+	cd $(DIST); find $(PKGCOMP_FIND_OPTS) '$(FINDPATH)' -type f | sort > bin-list.txt
+	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) $(MOZ_PKG_MANIFEST)) | grep '^$(BINPATH)' | sed -e 's/^\///' | sort > $(DIST)/pack-list.txt
+	-diff -u $(DIST)/pack-list.txt $(DIST)/bin-list.txt
+	rm -f $(DIST)/pack-list.txt $(DIST)/bin-list.txt
+
+ifdef ENABLE_WEBDRIVER
+DEFINES += -DENABLE_WEBDRIVER=1
+endif

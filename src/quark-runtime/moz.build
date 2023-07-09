@@ -10,6 +10,7 @@ DIRS += [
     'components',
     # 'stub',
     'examples',
+    'locales',
 ]
 
 JS_PREFERENCE_PP_FILES += [
