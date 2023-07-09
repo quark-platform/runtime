@@ -119,12 +119,13 @@
 @BINPATH@/d3dcompiler_47.dll
 #endif
 
-[browser]
+[quark-runtime]
 ; [Base Browser Files]
+@BINPATH@/README.md
 #ifndef XP_UNIX
 @BINPATH@/@MOZ_APP_NAME@.exe
-else
-@BINPATH@/@MOZ_APP_NAME@
+#else
+@BINPATH@/quark-runtime
 #endif
 @RESPATH@/application.ini
 #ifdef MOZ_UPDATER
