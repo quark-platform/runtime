@@ -11,11 +11,29 @@
     "windowsUseSymbolicLinks": false
   },
   "addons": {},
-  "brands": {},
+  "brands": {
+    "esr": {
+      "_note": "This is all stuff required by ff forks, not something we care about",
+      "backgroundColor": "",
+      "brandShorterName": "",
+      "brandShortName": "",
+      "brandFullName": "",
+
+      "release": {
+        "displayVersion": "1.0.0",
+        "github": {
+          "repo": "pulse-browser/browser"
+        },
+        "x86": {
+          "windowsMar": "windows.mar",
+          "macosMar": "macosIntel.mar",
+          "linuxMar": "linux.mar"
+        }
+      }
+    }
+  },
   "license": {
-    "ignoredFiles": [
-      ".*\\.json"
-    ],
+    "ignoredFiles": [".*\\.json"],
     "licenseType": "MPL-2.0"
   }
 }

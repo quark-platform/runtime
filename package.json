@@ -8,7 +8,7 @@
     "download": "gluon download",
     "imp": "gluon import",
     "build": "gluon build",
-    "start": "cd engine && ./obj-x86_64-pc-linux-gnu/dist/bin/xulrunner",
+    "start": "cd engine && ./obj-x86_64-pc-linux-gnu/dist/bin/quark-runtime",
     "export": "gluon export",
     "test": "cd engine && ./mach xpcshell-test runtime/tests/xpcshell/",
     "package": "gluon package",

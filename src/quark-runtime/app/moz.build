@@ -6,13 +6,13 @@
 
 DIRS += ['profile']
 
-GeckoProgram('xulrunner')
+GeckoProgram('quark-runtime')
 
 SOURCES += [
-    'nsXULRunnerApp.cpp',
+    'QuarkRuntime.cpp',
 ]
 
-DEFINES['XULRUNNER_PROGNAME'] = '"xulrunner"'
+DEFINES['XULRUNNER_PROGNAME'] = '"quark-runtime"'
 if CONFIG['MOZ_DEBUG']:
     DEFINES['DEBUG'] = True
 

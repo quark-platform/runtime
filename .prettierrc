@@ -3,13 +3,13 @@
   "singleQuote": true,
   "overrides": [
     {
-      "files": "src/xulrunner/examples/**/*-prefs.js",
+      "files": "src/quark-runtime/examples/**/*-prefs.js",
       "options": {
         "semi": true
       }
     },
     {
-      "files": "src/xulrunner/config/prefs/*.js",
+      "files": "src/quark-runtime/config/prefs/*.js",
       "options": {
         "semi": true
       }

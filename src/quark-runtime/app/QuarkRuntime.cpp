@@ -134,7 +134,7 @@ static void Usage(const char *argv0)
 
   // display additional information (XXX make localizable?)
   Output(false,
-         "Mozilla XULRunner %s\n\n"
+         "Quark Runtime %s\n\n"
          "Usage: " XULRUNNER_PROGNAME " [OPTIONS]\n"
          "       " XULRUNNER_PROGNAME " APP-FILE [APP-OPTIONS...]\n"
          "\n"

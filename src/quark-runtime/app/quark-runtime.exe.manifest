@@ -3,10 +3,10 @@
 <assemblyIdentity
         version="1.0.0.0"
         processorArchitecture="*"
-        name="Mozilla.XULRunner"
+        name="Fushra.QuarkRuntime"
         type="win32"
 />
-<description>Mozilla XULRunner</description>
+<description>Quark Runtime</description>
 <dependency>
         <dependentAssembly>
                 <assemblyIdentity
