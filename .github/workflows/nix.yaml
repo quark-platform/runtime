@@ -18,4 +18,4 @@ jobs:
         skipPush: "true"
     - run: nix build .
       # only push up the unwrapped binaries
-    - run: nix build .#unwrapped --json | jq -r '.[].outputs' | to_entries[].value | cachix push trickypr
+    - run: nix build .#unwrapped --json | jq -r '.[].outputs | to_entries[].value' | cachix push trickypr
