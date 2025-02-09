@@ -1,9 +1,8 @@
-export MOZILLA_OFFICIAL=1
-export JAVA_HOME=/tools/jdk
-
 ac_add_options --enable-application=quark-runtime
 ac_add_options --disable-tests
 
+ac_add_options --with-ccache=ccache
+
 . $topsrcdir/build/unix/mozconfig.linux
 
-. "$topsrcdir/quark-runtime/config/mozconfigs/common.override"
+. "$topsrcdir/quark-runtime/config/mozconfigs/common"

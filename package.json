@@ -3,23 +3,14 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "download": "gluon download",
-    "imp": "gluon import",
-    "build": "gluon build",
-    "start": "cd engine && ./obj-x86_64-pc-linux-gnu/dist/bin/quark-runtime",
-    "export": "gluon export",
-    "test": "cd engine && ./mach xpcshell-test runtime/tests/xpcshell/",
-    "package": "gluon package",
-    "bootstrap": "gluon bootstrap"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "gluon-build": "1.0.0-rc.5"
-  },
   "devDependencies": {
-    "gecko-types": "github:quark-platform/gecko-types"
+    "@types/node": "^22.13.1"
   }
 }

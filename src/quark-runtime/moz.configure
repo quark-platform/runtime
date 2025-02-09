@@ -19,4 +19,8 @@ def stub_name(name):
     if name:
         return name
 
+imply_option("MOZ_APP_ID", "{467f0af0-e540-11ef-9773-53498b95fe2d}")
+imply_option("MOZ_APP_VENDOR", "trickypr")
+imply_option("MOZ_DEVTOOLS", "all")
+
 include('../toolkit/moz.configure')
