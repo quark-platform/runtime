@@ -136,17 +136,9 @@
 @BINPATH@/@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
 #endif
 @BINPATH@/@DLL_PREFIX@lgpllibs@DLL_SUFFIX@
-#ifdef MOZ_FFVPX
+@BINPATH@/@DLL_PREFIX@gkcodecs@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@mozavutil@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@mozavcodec@DLL_SUFFIX@
-#endif
-#ifdef XP_WIN
-#ifdef _AMD64_
-@BINPATH@/@DLL_PREFIX@qipcap64@DLL_SUFFIX@
-#else
-@BINPATH@/@DLL_PREFIX@qipcap@DLL_SUFFIX@
-#endif
-#endif
 
 ; [Components]
 #ifdef ACCESSIBILITY
@@ -354,9 +346,7 @@ bin/libfreebl_64int_3.so
 @BINPATH@/crashreporter.app/
 #else
 @BINPATH@/crashreporter@BIN_SUFFIX@
-@RESPATH@/crashreporter.ini
 #ifdef XP_UNIX
-@RESPATH@/Throbber-small.gif
 #elif defined(XP_WIN)
 @BINPATH@/@DLL_PREFIX@mozwer@DLL_SUFFIX@
 #endif
@@ -365,12 +355,6 @@ bin/libfreebl_64int_3.so
 #ifdef MOZ_CRASHREPORTER_INJECTOR
 @BINPATH@/breakpadinjector.dll
 #endif
-#endif
-
-; [ minidump-analyzer ]
-;
-#ifdef MOZ_CRASHREPORTER
-@BINPATH@/minidump-analyzer@BIN_SUFFIX@
 #endif
 
 ; [ Ping Sender ]
