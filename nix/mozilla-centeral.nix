@@ -1,8 +1,8 @@
 { ... }:
 let
-  version = "134.0.2";
+  version = "135.0";
 in
 fetchTarball {
   url = "https://archive.mozilla.org/pub/firefox/releases/${version}/source/firefox-${version}.source.tar.xz";
-  sha256 = "08n22w1vipb4g9nampvd91xnj149w921p6iwdh61znckafln6m6y";
+  sha256 = "16ik90im6dqa7pfyx75ryfc403fl45djja8z6si3rxvr9dx3498w";
 }
