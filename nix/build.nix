@@ -78,7 +78,7 @@ stdenv.mkDerivation {
       ${link-modules}
       END
       echo -e "#! /usr/bin/env nix-shell\n#! nix-shell -i bash -p bash coreutils findutils\nquark='$out'" | ${pkgs.coreutils}/bin/cat - link-modules > $out/bin/link-modules
-      ${pkgs.coreutils}/bin/chmod +x $out/bin/link-modules
+      ${pkgs.coreutils}/bin/chmod a+x $out/bin/link-modules
 
       # Extract omni into lib
       (
