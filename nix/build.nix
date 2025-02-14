@@ -42,13 +42,12 @@ let
     IFS=$'\n\t'
 
     target=$(pwd)/modules
-    mkdir -p $target
+    ${pkgs.coreutils}/bin/mkdir -p $target
 
     (
       cd $quark/lib/omni/modules
-      find -type d -exec mkdir -p $target/{} \; 
-      find -type f -exec ln -s $(pwd)/{} $target/{} \; 
-      echo $target
+      ${pkgs.findutils}/bin/find -type d -exec mkdir -p $target/{} \; 
+      ${pkgs.findutils}/bin/find -type f -exec ln -s $(pwd)/{} $target/{} \; 
     )
   '';
 in
@@ -77,7 +76,7 @@ stdenv.mkDerivation {
       ${pkgs.coreutils}/bin/cat >> link-modules << 'END'
       ${link-modules}
       END
-      echo -e "#! /usr/bin/env nix-shell\n#! nix-shell -i bash -p bash coreutils findutils\nquark='$out'" | ${pkgs.coreutils}/bin/cat - link-modules > $out/bin/link-modules
+      echo -e "quark='$out'" | ${pkgs.coreutils}/bin/cat - link-modules > $out/bin/link-modules
       ${pkgs.coreutils}/bin/chmod 777 $out/bin/link-modules
 
       # Extract omni into lib
