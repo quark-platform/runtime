@@ -33,8 +33,7 @@
             patched = patched;
             system = system;
           };
-          default = import ./nix/build.nix {
-            inherit pkgs;
+          default = pkgs.callPackage ./nix/build.nix {
             unwrapped = unwrapped;
             sys = system;
           };
