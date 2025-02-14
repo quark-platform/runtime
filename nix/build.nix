@@ -46,8 +46,8 @@ let
 
     (
       cd $quark/lib/omni/modules
-      ${pkgs.findutils}/bin/find -type d -exec mkdir -p $target/{} \; 
-      ${pkgs.findutils}/bin/find -type f -exec ln -s $(pwd)/{} $target/{} \; 
+      ${pkgs.findutils}/bin/find -type d -exec ${pkgs.coreutils}/bin/mkdir -p $target/{} \; 
+      ${pkgs.findutils}/bin/find -type f -exec ${pkgs.coreutils}/bin/ln -s $(pwd)/{} $target/{} \; 
     )
   '';
 in
