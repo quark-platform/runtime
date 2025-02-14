@@ -16,14 +16,14 @@ let
     xorg.libXScrnSaver
     cups
     pciutils
-    vulcan-loader
+    vulkan-loader
 
     # Xorg
-    libX11
-    libXxf86dga
-    libXxf86vm
-    libXext
-    libXt
+    xorg.libX11
+    xorg.libXxf86dga
+    xorg.libXxf86vm
+    xorg.libXext
+    xorg.libXt
     alsa-lib
     zlib
 
@@ -37,7 +37,7 @@ stdenv.mkDerivation {
   system = sys;
   builder = "${pkgs.bash}/bin/bash";
   buildInputs = [ unwrapped.gtk3 ];
-  lib = lib.makeLibararyPath libs + ":" + lib.mkSearchPathOutput "lib" "lib64" libs;
+  lib = lib.makeLibraryPath libs + ":" + lib.makeSearchPathOutput "lib" "lib64" libs;
   args = [
     "-c"
     "${pkgs.coreutils}/bin/mkdir -p $out/bin && ${pkgs.coreutils}/bin/ln -s ${unwrapped}/bin/${name} $out/bin/${name}"
